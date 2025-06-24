@@ -1,0 +1,12 @@
+[
+  {
+    "model": "huespedes.tipodocumento",
+    "pk": 1,
+    "fields": {
+      "nombre": "DNI",
+      "codigo": "dni",
+      "longitud_minima": 8,
+      "longitud_maxima": 8
+    }
+  }
+]
