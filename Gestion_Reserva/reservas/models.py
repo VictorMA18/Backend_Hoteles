@@ -30,10 +30,10 @@ class EstadoReserva(models.Model):
         db_table = 'estado_reserva'
 
 class Reserva(models.Model):
-    codigo = models.CharField(primary_key=True, max_length=20)
+    id = models.AutoField(primary_key=True)
     codigo_habitacion = models.ForeignKey(Habitacion, on_delete=models.PROTECT)
     dni_huesped = models.ForeignKey(Huesped, on_delete=models.PROTECT)
-    dni_administrador = models.ForeignKey(Administrador, on_delete=models.PROTECT)
+    dni_administrador = models.ForeignKey(Administrador, on_delete=models.PROTECT, null=True, blank=True)
     id_tipo_reserva = models.ForeignKey(TipoReserva, on_delete=models.PROTECT)
     id_estado_reserva = models.ForeignKey(EstadoReserva, on_delete=models.PROTECT, default=1)
     
@@ -69,8 +69,14 @@ class Reserva(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def clean(self):
+        super().clean()
+        if self.id_tipo_reserva.requiere_presencia and not self.dni_administrador:
+            from django.core.exceptions import ValidationError
+            raise ValidationError('Las reservas presenciales deben tener un administrador asignado.')
+
     def __str__(self):
-        return self.codigo
+        return f"Reserva #{self.id}"
 
     class Meta:
         db_table = 'reserva'
@@ -92,3 +98,16 @@ class Reserva(models.Model):
                 name='chk_precio_positivo'
             ),
         ]
+
+class HistorialReserva(models.Model):
+    huesped = models.ForeignKey(Huesped, on_delete=models.CASCADE, related_name='historial_reservas')
+    reserva = models.ForeignKey(Reserva, on_delete=models.CASCADE, related_name='historiales')
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'historial_reserva'
+        verbose_name = 'Historial de Reserva'
+        verbose_name_plural = 'Historiales de Reserva'
+
+    def __str__(self):
+        return f"Historial de {self.huesped} - Reserva {self.reserva.id}"
