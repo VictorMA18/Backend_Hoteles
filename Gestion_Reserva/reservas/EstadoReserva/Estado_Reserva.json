@@ -1,0 +1,38 @@
+[
+  {
+    "model": "reservas.estadoreserva",
+    "pk": 1,
+    "fields": {
+      "nombre": "Pendiente",
+      "descripcion": "Reserva pendiente de confirmación",
+      "es_final": false
+    }
+  },
+  {
+    "model": "reservas.estadoreserva",
+    "pk": 2,
+    "fields": {
+      "nombre": "Confirmada",
+      "descripcion": "Reserva confirmada",
+      "es_final": false
+    }
+  },
+  {
+    "model": "reservas.estadoreserva",
+    "pk": 3,
+    "fields": {
+      "nombre": "Cancelada",
+      "descripcion": "Reserva cancelada",
+      "es_final": true
+    }
+  },
+  {
+    "model": "reservas.estadoreserva",
+    "pk": 4,
+    "fields": {
+      "nombre": "Finalizada",
+      "descripcion": "Reserva finalizada",
+      "es_final": true
+    }
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "model": "habitaciones.tipohabitacion",
+    "pk": 1,
+    "fields": {
+      "nombre": "Simple",
+      "descripcion": "Habitación simple para una persona",
+      "capacidad_maxima": 1,
+      "precio_base": "100.00"
+    }
+  },
+  {
+    "model": "habitaciones.tipohabitacion",
+    "pk": 2,
+    "fields": {
+      "nombre": "Doble",
+      "descripcion": "Habitación doble para dos personas",
+      "capacidad_maxima": 2,
+      "precio_base": "180.00"
+    }
+  }
+]

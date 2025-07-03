@@ -1,8 +1,9 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.conf import settings
 
 from habitaciones.models import Habitacion  # Importar desde habitaciones
-from huespedes.models import Huesped  # Importar desde huespedes
+from usuarios.models import Usuario  # Importar desde usuarios
 from personal.models import Administrador  # Importar desde personal
 
 class TipoReserva(models.Model):
@@ -31,9 +32,9 @@ class EstadoReserva(models.Model):
 
 class Reserva(models.Model):
     id = models.AutoField(primary_key=True)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     codigo_habitacion = models.ForeignKey(Habitacion, on_delete=models.PROTECT)
-    dni_huesped = models.ForeignKey(Huesped, on_delete=models.PROTECT)
-    dni_administrador = models.ForeignKey(Administrador, on_delete=models.PROTECT, null=True, blank=True)
+    usuario_admin = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True, related_name='reservas_administradas')
     id_tipo_reserva = models.ForeignKey(TipoReserva, on_delete=models.PROTECT)
     id_estado_reserva = models.ForeignKey(EstadoReserva, on_delete=models.PROTECT, default=1)
     
@@ -71,19 +72,119 @@ class Reserva(models.Model):
 
     def clean(self):
         super().clean()
-        if self.id_tipo_reserva.requiere_presencia and not self.dni_administrador:
+        if self.id_tipo_reserva.requiere_presencia and not self.usuario_admin:
             from django.core.exceptions import ValidationError
             raise ValidationError('Las reservas presenciales deben tener un administrador asignado.')
 
     def __str__(self):
         return f"Reserva #{self.id}"
 
+    def cancelar(self, motivo=None):
+        """Cancela la reserva y libera la habitación"""
+        from reservas.models import EstadoReserva
+        from habitaciones.models import EstadoHabitacion
+        from django.utils import timezone
+        
+        estado_cancelada = EstadoReserva.objects.get(pk=3)  # Cancelada
+        self.id_estado_reserva = estado_cancelada
+        if motivo:
+            self.motivo_cancelacion = motivo
+        
+        # Si la habitación estaba reservada, la marcamos como disponible
+        if self.codigo_habitacion.id_estado.pk == 3:  # Reservada
+            estado_disponible = EstadoHabitacion.objects.get(pk=1)  # Disponible
+            self.codigo_habitacion.id_estado = estado_disponible
+            self.codigo_habitacion.save()
+        
+        self.save()
+
+    def check_in(self):
+        """Realiza el check-in: cambia habitación a Ocupada y registra fecha real"""
+        from habitaciones.models import EstadoHabitacion
+        from django.utils import timezone
+        
+        # Solo permitir check-in si la reserva está confirmada
+        if self.id_estado_reserva.pk != 2:  # No está confirmada
+            raise ValueError("Solo se puede hacer check-in de reservas confirmadas")
+        
+        estado_ocupada = EstadoHabitacion.objects.get(pk=2)  # Ocupada
+        self.codigo_habitacion.id_estado = estado_ocupada
+        self.codigo_habitacion.save()
+        
+        self.fecha_checkin_real = timezone.now()
+        self.save()
+
+    def check_out(self):
+        """Realiza el check-out: cambia habitación a Limpieza y reserva a Finalizada"""
+        from habitaciones.models import EstadoHabitacion
+        from reservas.models import EstadoReserva
+        from django.utils import timezone
+        
+        # Solo permitir check-out si hay check-in registrado
+        if not self.fecha_checkin_real:
+            raise ValueError("No se puede hacer check-out sin check-in previo")
+        
+        estado_limpieza = EstadoHabitacion.objects.get(pk=5)  # Limpieza
+        estado_finalizada = EstadoReserva.objects.get(pk=4)  # Finalizada
+        
+        self.codigo_habitacion.id_estado = estado_limpieza
+        self.codigo_habitacion.save()
+        
+        self.id_estado_reserva = estado_finalizada
+        self.fecha_checkout_real = timezone.now()
+        self.save()
+
+    def confirmar(self):
+        """Confirma la reserva (de Pendiente a Confirmada) y marca habitación como reservada"""
+        from reservas.models import EstadoReserva
+        from habitaciones.models import EstadoHabitacion
+        
+        if self.id_estado_reserva.pk != 1:  # No está pendiente
+            raise ValueError("Solo se pueden confirmar reservas pendientes")
+        
+        estado_confirmada = EstadoReserva.objects.get(pk=2)  # Confirmada
+        estado_reservada = EstadoHabitacion.objects.get(pk=3)  # Reservada
+        
+        self.id_estado_reserva = estado_confirmada
+        self.codigo_habitacion.id_estado = estado_reservada
+        self.codigo_habitacion.save()
+        self.save()
+
+    def finalizar_limpieza(self):
+        """Marca la habitación como disponible después de la limpieza"""
+        from habitaciones.models import EstadoHabitacion
+        from django.utils import timezone
+        
+        if self.codigo_habitacion.id_estado.pk == 5:  # En limpieza
+            estado_disponible = EstadoHabitacion.objects.get(pk=1)  # Disponible
+            self.codigo_habitacion.id_estado = estado_disponible
+            self.codigo_habitacion.fecha_ultima_limpieza = timezone.now()
+            self.codigo_habitacion.save()
+
+    def actualizar_estado_habitacion(self):
+        """Actualiza el estado de la habitación según el estado actual de la reserva"""
+        from habitaciones.models import EstadoHabitacion
+        
+        # Si la reserva está cancelada o finalizada, evaluar el estado de la habitación
+        if self.id_estado_reserva.pk == 3:  # Cancelada
+            # Solo cambiar a disponible si estaba reservada
+            if self.codigo_habitacion.id_estado.pk == 3:  # Reservada
+                estado_disponible = EstadoHabitacion.objects.get(pk=1)  # Disponible
+                self.codigo_habitacion.id_estado = estado_disponible
+                self.codigo_habitacion.save()
+        elif self.id_estado_reserva.pk == 4:  # Finalizada
+            # Después del check-out, la habitación debe estar en limpieza
+            if self.codigo_habitacion.id_estado.pk == 2:  # Ocupada
+                estado_limpieza = EstadoHabitacion.objects.get(pk=5)  # Limpieza
+                self.codigo_habitacion.id_estado = estado_limpieza
+                self.codigo_habitacion.save()
+
     class Meta:
         db_table = 'reserva'
         indexes = [
             models.Index(fields=['codigo_habitacion'], name='idx_reserva_habitacion'),
-            models.Index(fields=['dni_huesped'], name='idx_reserva_huesped'),
-            models.Index(fields=['dni_administrador'], name='idx_reserva_admin'),
+            models.Index(fields=['usuario'], name='idx_reserva_huesped'),
+            models.Index(fields=['usuario_admin'], name='idx_reserva_admin'),
             models.Index(fields=['fecha_checkin_programado', 'fecha_checkout_programado'], name='idx_reserva_fechas'),
             models.Index(fields=['id_estado_reserva'], name='idx_reserva_estado'),
             models.Index(fields=['id_tipo_reserva'], name='idx_reserva_tipo'),
@@ -100,7 +201,7 @@ class Reserva(models.Model):
         ]
 
 class HistorialReserva(models.Model):
-    huesped = models.ForeignKey(Huesped, on_delete=models.CASCADE, related_name='historial_reservas')
+    huesped = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='historial_reservas')  # Solo usuarios con rol HUESPED
     reserva = models.ForeignKey(Reserva, on_delete=models.CASCADE, related_name='historiales')
     fecha = models.DateTimeField(auto_now_add=True)
 

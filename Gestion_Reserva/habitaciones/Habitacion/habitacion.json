@@ -1,0 +1,38 @@
+[
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB101",
+    "fields": {
+      "numero_habitacion": "101",
+      "piso": 1,
+      "id_tipo": 1,
+      "id_estado": 1,
+      "precio_actual": "100.00",
+      "observaciones": "Cerca del ascensor"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB102",
+    "fields": {
+      "numero_habitacion": "102",
+      "piso": 1,
+      "id_tipo": 2,
+      "id_estado": 1,
+      "precio_actual": "180.00",
+      "observaciones": ""
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB201",
+    "fields": {
+      "numero_habitacion": "201",
+      "piso": 2,
+      "id_tipo": 2,
+      "id_estado": 1,
+      "precio_actual": "180.00",
+      "observaciones": "Vista a la piscina"
+    }
+  }
+]

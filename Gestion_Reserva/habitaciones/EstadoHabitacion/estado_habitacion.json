@@ -1,0 +1,56 @@
+[
+  {
+    "model": "habitaciones.estadohabitacion",
+    "pk": 1,
+    "fields": {
+      "nombre": "Disponible",
+      "descripcion": "La habitación está disponible para reservar",
+      "permite_reserva": true
+    }
+  },
+  {
+    "model": "habitaciones.estadohabitacion",
+    "pk": 2,
+    "fields": {
+      "nombre": "Ocupada",
+      "descripcion": "La habitación está actualmente ocupada",
+      "permite_reserva": false
+    }
+  },
+  {
+    "model": "habitaciones.estadohabitacion",
+    "pk": 3,
+    "fields": {
+      "nombre": "Reservada",
+      "descripcion": "La habitación está reservada pero aún no ocupada",
+      "permite_reserva": false
+    }
+  },
+  {
+    "model": "habitaciones.estadohabitacion",
+    "pk": 4,
+    "fields": {
+      "nombre": "Mantenimiento",
+      "descripcion": "La habitación está en mantenimiento",
+      "permite_reserva": false
+    }
+  },
+  {
+    "model": "habitaciones.estadohabitacion",
+    "pk": 5,
+    "fields": {
+      "nombre": "Limpieza",
+      "descripcion": "La habitación está siendo limpiada",
+      "permite_reserva": false
+    }
+  },
+  {
+    "model": "habitaciones.estadohabitacion",
+    "pk": 6,
+    "fields": {
+      "nombre": "Fuera de servicio",
+      "descripcion": "La habitación está temporalmente fuera de servicio",
+      "permite_reserva": false
+    }
+  }
+]

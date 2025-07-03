@@ -19,6 +19,9 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('huespedes/', include('huespedes.urls')),
-    path('reservas/', include('reservas.urls')),
+    # API endpoints agrupados bajo api/
+    path('api/huespedes/', include('huespedes.urls')),
+    path('api/reservas/', include('reservas.urls')),
+    path('api/usuarios/', include('usuarios.urls')),
+    path('api/habitaciones/', include('habitaciones.urls')),
 ]
