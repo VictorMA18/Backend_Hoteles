@@ -5,8 +5,17 @@ from django.core.cache import cache
 
 @receiver(post_save, sender=Habitacion)
 def actualizar_cache_habitaciones(sender, instance, **kwargs):
-    disponibles = list(
-        Habitacion.objects.filter(id_estado__permite_reserva=True)
-        .values('codigo', 'numero_habitacion', 'piso', 'precio_actual')
+    habitaciones = list(
+        Habitacion.objects.select_related('id_estado', 'id_tipo')
+        .values(
+            'codigo',
+            'numero_habitacion',
+            'piso',
+            'precio_actual',
+            'id_estado__nombre',
+            'id_estado__permite_reserva',
+            'id_tipo__nombre'
+        )
     )
-    cache.set("habitaciones_disponibles", disponibles)
+    cache.set("habitaciones_dashboard", habitaciones)
+

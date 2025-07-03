@@ -32,7 +32,7 @@ class Habitacion(models.Model):
     numero_habitacion = models.CharField(max_length=10, unique=True)
     piso = models.IntegerField()
     id_tipo = models.ForeignKey(TipoHabitacion, on_delete=models.PROTECT)
-    id_estado = models.ForeignKey(EstadoHabitacion, on_delete=models.PROTECT, default=1)
+    id_estado = models.ForeignKey(EstadoHabitacion, on_delete=models.PROTECT)
     precio_actual = models.DecimalField(max_digits=10, decimal_places=2)
     observaciones = models.TextField(blank=True, null=True)
     fecha_ultima_limpieza = models.DateTimeField(blank=True, null=True)

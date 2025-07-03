@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
-    'habitaciones.apps.habitacionesConfig',
+    'habitaciones.apps.HabitacionesConfig',
     'huespedes',
     'personal',
     'reservas',
@@ -142,3 +142,11 @@ AUTH_USER_MODEL = 'huespedes.Huesped'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',  # para pruebas
+        'LOCATION': 'unique-sse-cache',
+    }
+}
+
