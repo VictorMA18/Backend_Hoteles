@@ -148,21 +148,6 @@ def finalizar_limpieza_habitacion(request, reserva_id):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def historial_reservas_huesped(request):
-    """Historial de reservas del huésped (LEGACY - mantenido por compatibilidad)"""
-    user = request.user
-    try:
-        historial = HistorialReserva.objects.filter(huesped=user).order_by('-fecha')
-        serializer = HistorialReservaSerializer(historial, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    except:
-        # Si no existe el modelo de historial, devolver las reservas directamente
-        reservas = Reserva.objects.filter(usuario=user).order_by('-fecha_reserva')
-        serializer = ReservaSerializer(reservas, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def historial_reservas_usuario(request, dni):
     """Historial de reservas de un usuario específico (por dni) - Solo para ADMIN y derivados"""
     if request.user.rol == 'HUESPED':

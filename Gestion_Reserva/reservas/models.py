@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.conf import settings
+from decimal import Decimal
 
 from habitaciones.models import Habitacion  # Importar desde habitaciones
 from usuarios.models import Usuario  # Importar desde usuarios
@@ -54,15 +55,16 @@ class Reserva(models.Model):
     # Campos calculados (se gestionarán a nivel de aplicación)
     @property
     def total_noches(self):
-        return (self.fecha_checkout_programado - self.fecha_checkin_programado).days
+        noches = (self.fecha_checkout_programado.date() - self.fecha_checkin_programado.date()).days
+        return max(noches, 1)
     
     @property
     def subtotal(self):
-        return self.precio_noche * self.total_noches
-    
+        return Decimal(self.precio_noche) * self.total_noches
+
     @property
     def total_pagar(self):
-        return self.subtotal - self.descuento + self.impuestos
+        return self.subtotal - Decimal(self.descuento) + Decimal(self.impuestos)
     
     # Información adicional
     observaciones = models.TextField(blank=True, null=True)
@@ -135,16 +137,26 @@ class Reserva(models.Model):
         self.save()
 
     def confirmar(self):
-        """Confirma la reserva (de Pendiente a Confirmada) y marca habitación como reservada"""
         from reservas.models import EstadoReserva
         from habitaciones.models import EstadoHabitacion
-        
+        from django.db.models import Q
+
         if self.id_estado_reserva.pk != 1:  # No está pendiente
             raise ValueError("Solo se pueden confirmar reservas pendientes")
-        
+
+        # Validar solapamiento de reservas confirmadas u ocupadas
+        solapada = Reserva.objects.filter(
+            codigo_habitacion=self.codigo_habitacion,
+            id_estado_reserva__nombre__in=['Confirmada', 'Ocupada'],
+            fecha_checkin_programado__lt=self.fecha_checkout_programado,
+            fecha_checkout_programado__gt=self.fecha_checkin_programado
+        ).exclude(pk=self.pk).exists()
+        if solapada:
+            raise ValueError("Ya existe una reserva confirmada u ocupada para esta habitación en el rango de fechas seleccionado.")
+
         estado_confirmada = EstadoReserva.objects.get(pk=2)  # Confirmada
         estado_reservada = EstadoHabitacion.objects.get(pk=3)  # Reservada
-        
+
         self.id_estado_reserva = estado_confirmada
         self.codigo_habitacion.id_estado = estado_reservada
         self.codigo_habitacion.save()
@@ -160,24 +172,6 @@ class Reserva(models.Model):
             self.codigo_habitacion.id_estado = estado_disponible
             self.codigo_habitacion.fecha_ultima_limpieza = timezone.now()
             self.codigo_habitacion.save()
-
-    def actualizar_estado_habitacion(self):
-        """Actualiza el estado de la habitación según el estado actual de la reserva"""
-        from habitaciones.models import EstadoHabitacion
-        
-        # Si la reserva está cancelada o finalizada, evaluar el estado de la habitación
-        if self.id_estado_reserva.pk == 3:  # Cancelada
-            # Solo cambiar a disponible si estaba reservada
-            if self.codigo_habitacion.id_estado.pk == 3:  # Reservada
-                estado_disponible = EstadoHabitacion.objects.get(pk=1)  # Disponible
-                self.codigo_habitacion.id_estado = estado_disponible
-                self.codigo_habitacion.save()
-        elif self.id_estado_reserva.pk == 4:  # Finalizada
-            # Después del check-out, la habitación debe estar en limpieza
-            if self.codigo_habitacion.id_estado.pk == 2:  # Ocupada
-                estado_limpieza = EstadoHabitacion.objects.get(pk=5)  # Limpieza
-                self.codigo_habitacion.id_estado = estado_limpieza
-                self.codigo_habitacion.save()
 
     class Meta:
         db_table = 'reserva'
