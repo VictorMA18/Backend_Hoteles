@@ -2,9 +2,20 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from .models import Habitacion, EstadoHabitacion, TipoHabitacion
 from .serializers import HabitacionSerializer
+from django.http import StreamingHttpResponse
+from django.utils.timezone import now
+from django.core.cache import cache
+from django.http import JsonResponse
+from django.http import HttpResponse
+from asgiref.sync import sync_to_async
+from .gestion_sse import subscribe
+
+import asyncio
+import time
+import json
 
 @api_view(['GET'])
 def listar_habitaciones(request):
@@ -95,3 +106,24 @@ def tipos_habitacion(request):
         "capacidad_maxima": tipo.capacidad_maxima,
         "precio_base": tipo.precio_base
     } for tipo in tipos], status=status.HTTP_200_OK)
+
+# SSE para mostrar habitaciones para el dashboard en tiempo real
+async def habitaciones_dashboard_sse(request):
+    queue = asyncio.Queue()
+
+    unsubscribe = subscribe(queue)
+
+    async def event_stream():
+        try:
+            while True:
+                data = await queue.get()
+                yield f'data: {data}\n\n'
+        except asyncio.CancelledError:
+            unsubscribe()
+
+    response = StreamingHttpResponse(
+        event_stream(),
+        content_type='text/event-stream'
+    )
+    response['Cache-Control'] = 'no-cache'
+    return response

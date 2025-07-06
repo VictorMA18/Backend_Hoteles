@@ -6,7 +6,9 @@
       "nombre": "Simple",
       "descripcion": "Habitación simple para una persona",
       "capacidad_maxima": 1,
-      "precio_base": "100.00"
+      "precio_base": "100.00",
+      "created_at": "2025-07-03T08:00:00Z",
+      "updated_at": "2025-07-03T08:00:00Z"
     }
   },
   {
@@ -16,7 +18,9 @@
       "nombre": "Doble",
       "descripcion": "Habitación doble para dos personas",
       "capacidad_maxima": 2,
-      "precio_base": "180.00"
+      "precio_base": "180.00",
+      "created_at": "2025-07-03T08:00:00Z",
+      "updated_at": "2025-07-03T08:00:00Z"
     }
   }
 ]

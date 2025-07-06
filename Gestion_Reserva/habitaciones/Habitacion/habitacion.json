@@ -8,7 +8,10 @@
       "id_tipo": 1,
       "id_estado": 1,
       "precio_actual": "100.00",
-      "observaciones": "Cerca del ascensor"
+      "observaciones": "Cerca del ascensor",
+      "fecha_ultima_limpieza": null,
+      "created_at": "2025-07-03T08:00:00Z",
+      "updated_at": "2025-07-03T08:00:00Z"
     }
   },
   {
@@ -20,7 +23,10 @@
       "id_tipo": 2,
       "id_estado": 1,
       "precio_actual": "180.00",
-      "observaciones": ""
+      "observaciones": "",
+      "fecha_ultima_limpieza": null,
+      "created_at": "2025-07-03T08:00:00Z",
+      "updated_at": "2025-07-03T08:00:00Z"
     }
   },
   {
@@ -32,7 +38,10 @@
       "id_tipo": 2,
       "id_estado": 1,
       "precio_actual": "180.00",
-      "observaciones": "Vista a la piscina"
+      "observaciones": "Vista a la piscina",
+      "fecha_ultima_limpieza": null,
+      "created_at": "2025-07-03T08:00:00Z",
+      "updated_at": "2025-07-03T08:00:00Z"
     }
   }
 ]
