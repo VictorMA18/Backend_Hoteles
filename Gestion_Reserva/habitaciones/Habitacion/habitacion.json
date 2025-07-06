@@ -5,10 +5,12 @@
     "fields": {
       "numero_habitacion": "101",
       "piso": 1,
-      "id_tipo": 1,
+      "id_tipo": 2,
       "id_estado": 1,
-      "precio_actual": "100.00",
-      "observaciones": "Cerca del ascensor"
+      "precio_actual": "150.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
     }
   },
   {
@@ -17,10 +19,82 @@
     "fields": {
       "numero_habitacion": "102",
       "piso": 1,
-      "id_tipo": 2,
+      "id_tipo": 3,
       "id_estado": 1,
-      "precio_actual": "180.00",
-      "observaciones": ""
+      "precio_actual": "110.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB103",
+    "fields": {
+      "numero_habitacion": "103",
+      "piso": 1,
+      "id_tipo": 4,
+      "id_estado": 1,
+      "precio_actual": "90.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB104",
+    "fields": {
+      "numero_habitacion": "104",
+      "piso": 1,
+      "id_tipo": 1,
+      "id_estado": 1,
+      "precio_actual": "120.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB105",
+    "fields": {
+      "numero_habitacion": "105",
+      "piso": 1,
+      "id_tipo": 4,
+      "id_estado": 1,
+      "precio_actual": "90.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB106",
+    "fields": {
+      "numero_habitacion": "106",
+      "piso": 1,
+      "id_tipo": 4,
+      "id_estado": 1,
+      "precio_actual": "90.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB107",
+    "fields": {
+      "numero_habitacion": "107",
+      "piso": 1,
+      "id_tipo": 4,
+      "id_estado": 1,
+      "precio_actual": "90.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
     }
   },
   {
@@ -31,8 +105,290 @@
       "piso": 2,
       "id_tipo": 2,
       "id_estado": 1,
-      "precio_actual": "180.00",
-      "observaciones": "Vista a la piscina"
+      "precio_actual": "150.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB202",
+    "fields": {
+      "numero_habitacion": "202",
+      "piso": 2,
+      "id_tipo": 3,
+      "id_estado": 1,
+      "precio_actual": "110.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB203",
+    "fields": {
+      "numero_habitacion": "203",
+      "piso": 2,
+      "id_tipo": 4,
+      "id_estado": 1,
+      "precio_actual": "90.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB204",
+    "fields": {
+      "numero_habitacion": "204",
+      "piso": 2,
+      "id_tipo": 1,
+      "id_estado": 1,
+      "precio_actual": "120.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB205",
+    "fields": {
+      "numero_habitacion": "205",
+      "piso": 2,
+      "id_tipo": 4,
+      "id_estado": 1,
+      "precio_actual": "90.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB206",
+    "fields": {
+      "numero_habitacion": "206",
+      "piso": 2,
+      "id_tipo": 4,
+      "id_estado": 1,
+      "precio_actual": "90.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB207",
+    "fields": {
+      "numero_habitacion": "207",
+      "piso": 2,
+      "id_tipo": 4,
+      "id_estado": 1,
+      "precio_actual": "90.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB301",
+    "fields": {
+      "numero_habitacion": "301",
+      "piso": 3,
+      "id_tipo": 2,
+      "id_estado": 1,
+      "precio_actual": "150.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB302",
+    "fields": {
+      "numero_habitacion": "302",
+      "piso": 3,
+      "id_tipo": 3,
+      "id_estado": 1,
+      "precio_actual": "110.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB303",
+    "fields": {
+      "numero_habitacion": "303",
+      "piso": 3,
+      "id_tipo": 4,
+      "id_estado": 1,
+      "precio_actual": "90.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB304",
+    "fields": {
+      "numero_habitacion": "304",
+      "piso": 3,
+      "id_tipo": 1,
+      "id_estado": 1,
+      "precio_actual": "120.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB305",
+    "fields": {
+      "numero_habitacion": "305",
+      "piso": 3,
+      "id_tipo": 4,
+      "id_estado": 1,
+      "precio_actual": "90.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB306",
+    "fields": {
+      "numero_habitacion": "306",
+      "piso": 3,
+      "id_tipo": 4,
+      "id_estado": 1,
+      "precio_actual": "90.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB307",
+    "fields": {
+      "numero_habitacion": "307",
+      "piso": 3,
+      "id_tipo": 4,
+      "id_estado": 1,
+      "precio_actual": "90.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB401",
+    "fields": {
+      "numero_habitacion": "401",
+      "piso": 4,
+      "id_tipo": 2,
+      "id_estado": 1,
+      "precio_actual": "150.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB402",
+    "fields": {
+      "numero_habitacion": "402",
+      "piso": 4,
+      "id_tipo": 3,
+      "id_estado": 1,
+      "precio_actual": "110.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB403",
+    "fields": {
+      "numero_habitacion": "403",
+      "piso": 4,
+      "id_tipo": 4,
+      "id_estado": 1,
+      "precio_actual": "90.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB404",
+    "fields": {
+      "numero_habitacion": "404",
+      "piso": 4,
+      "id_tipo": 1,
+      "id_estado": 1,
+      "precio_actual": "120.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB405",
+    "fields": {
+      "numero_habitacion": "405",
+      "piso": 4,
+      "id_tipo": 4,
+      "id_estado": 1,
+      "precio_actual": "90.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB406",
+    "fields": {
+      "numero_habitacion": "406",
+      "piso": 4,
+      "id_tipo": 4,
+      "id_estado": 1,
+      "precio_actual": "90.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "habitaciones.habitacion",
+    "pk": "HAB407",
+    "fields": {
+      "numero_habitacion": "407",
+      "piso": 4,
+      "id_tipo": 4,
+      "id_estado": 1,
+      "precio_actual": "90.00",
+      "observaciones": "",
+      "created_at": "2025-07-06T00:00:00Z",
+      "updated_at": "2025-07-06T00:00:00Z"
     }
   }
 ]

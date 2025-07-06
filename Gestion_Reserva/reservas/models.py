@@ -53,6 +53,14 @@ class Reserva(models.Model):
     impuestos = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     
     # Campos calculados (se gestionarán a nivel de aplicación)
+
+    @property
+    def descuento(self):
+        # Ejemplo: 10% de descuento si el huésped tiene 5 o más visitas
+        if hasattr(self.usuario, 'total_visitas') and self.usuario.total_visitas >= 5:
+            return self.subtotal * Decimal('0.10')
+        return Decimal('0.00')
+    
     @property
     def total_noches(self):
         noches = (self.fecha_checkout_programado.date() - self.fecha_checkin_programado.date()).days
@@ -161,6 +169,10 @@ class Reserva(models.Model):
         self.codigo_habitacion.id_estado = estado_reservada
         self.codigo_habitacion.save()
         self.save()
+
+        if hasattr(self.usuario, 'rol') and self.usuario.rol == 'HUESPED':
+            self.usuario.total_visitas = getattr(self.usuario, 'total_visitas', 0) + 1
+            self.usuario.save()
 
     def finalizar_limpieza(self):
         """Marca la habitación como disponible después de la limpieza"""

@@ -43,6 +43,10 @@ class ReservaSerializer(serializers.ModelSerializer):
             if numero_huespedes > capacidad_maxima:
                 raise serializers.ValidationError(f'El número de huéspedes ({numero_huespedes}) supera la capacidad máxima de la habitación ({capacidad_maxima}).')
         # Validar que el usuario no tenga ya una reserva para la misma habitación y fechas solapadas
+        if codigo_habitacion and codigo_habitacion.id_estado.nombre in ['Ocupada', 'Reservada', 'Limpieza']:
+            raise serializers.ValidationError(
+                f"No puedes reservar una habitación que está actualmente en estado '{codigo_habitacion.id_estado.nombre}'."
+            )
         if usuario and codigo_habitacion and fecha_checkin and fecha_checkout:
             existe = Reserva.objects.filter(
                 usuario=usuario,

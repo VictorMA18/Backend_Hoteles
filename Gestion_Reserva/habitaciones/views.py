@@ -95,3 +95,30 @@ def tipos_habitacion(request):
         "capacidad_maxima": tipo.capacidad_maxima,
         "precio_base": tipo.precio_base
     } for tipo in tipos], status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def buscar_disponibilidad(request):
+    """Busca habitaciones disponibles para un rango de fechas, tipo y capacidad (requiere autenticación)"""
+    data = request.data
+    fecha_checkin = data.get('fecha_checkin')
+    fecha_checkout = data.get('fecha_checkout')
+    tipo_habitacion = data.get('tipo_habitacion')
+    numero_huespedes = data.get('numero_huespedes')
+
+    if not (fecha_checkin and fecha_checkout and tipo_habitacion and numero_huespedes):
+        return Response({'detail': 'Faltan datos.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    habitaciones = Habitacion.objects.filter(
+        id_tipo__nombre__iexact=tipo_habitacion,
+        id_tipo__capacidad_maxima__gte=numero_huespedes
+    )
+
+    habitaciones_disponibles = habitaciones.exclude(
+        reserva__fecha_checkin_programado__lt=fecha_checkout,
+        reserva__fecha_checkout_programado__gt=fecha_checkin,
+        reserva__id_estado_reserva__nombre__in=['Pendiente', 'Confirmada', 'Ocupada']
+    ).distinct()
+
+    serializer = HabitacionSerializer(habitaciones_disponibles, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
