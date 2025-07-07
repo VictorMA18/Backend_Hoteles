@@ -11,7 +11,7 @@ class UsuarioAdmin(BaseUserAdmin):
     list_filter = ('rol', 'is_staff', 'is_active')
     fieldsets = (
         (None, {'fields': ('dni', 'password')}),
-        ('Información personal', {'fields': ('nombres', 'apellidos', 'email', 'celular', 'id_tipo_doc', 'change_password')}),
+        ('Información personal', {'fields': ('nombres', 'apellidos', 'email', 'celular', 'id_tipo_doc', 'change_password', 'total_visitas')}),
         ('Permisos', {'fields': ('rol', 'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         ('Fechas', {'fields': ('last_login',)}),
     )

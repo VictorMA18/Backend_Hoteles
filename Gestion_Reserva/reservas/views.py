@@ -7,6 +7,11 @@ from django.core.exceptions import ValidationError
 from .models import Reserva, HistorialReserva
 from .serializers import ReservaSerializer, HistorialReservaSerializer
 from usuarios.models import Usuario
+from usuarios.serializers import UsuarioSerializer
+from django.utils import timezone
+from datetime import timedelta
+from habitaciones.models import Habitacion
+from .models import Reserva, HistorialReserva, TipoReserva, EstadoReserva
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -164,3 +169,187 @@ def historial_reservas_usuario(request, dni):
         reservas = Reserva.objects.filter(usuario=usuario).order_by('-fecha_reserva')
         serializer = ReservaSerializer(reservas, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def registrar_hospedaje_presencial(request):
+    """
+    Registro de hospedaje presencial: crea usuario huésped si no existe,
+    asocia reserva a un administrador y realiza check-in inmediato.
+    """
+    if request.user.rol not in ['ADMIN', 'RECEPCIONISTA', 'SUPERVISOR']:
+        return Response({"error": "Sin permisos para registrar hospedaje presencial"}, status=status.HTTP_403_FORBIDDEN)
+
+    dni = request.data.get('dni')
+    nombres = request.data.get('nombres')
+    apellidos = request.data.get('apellidos')
+    habitacion_id = request.data.get('habitacion_id')
+    numero_huespedes = request.data.get('numero_huespedes', 1)
+    dias = int(request.data.get('dias', 3))
+    dni_admin = request.data.get('dni_admin')  # opcional
+
+    # Buscar o crear usuario huésped
+    try:
+        usuario = Usuario.objects.get(dni=dni)
+    except Usuario.DoesNotExist:
+        data = {
+            'dni': dni,
+            'nombres': nombres,
+            'apellidos': apellidos,
+            'password': dni,
+            'rol': 'HUESPED'
+        }
+        serializer = UsuarioSerializer(data=data)
+        if serializer.is_valid():
+            usuario = serializer.save()
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Buscar usuario administrador
+    if dni_admin:
+        try:
+            usuario_admin = Usuario.objects.get(dni=dni_admin, rol='ADMIN')
+        except Usuario.DoesNotExist:
+            return Response({'error': 'Administrador no encontrado.'}, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        usuario_admin = request.user
+
+    # Buscar habitación
+    try:
+        habitacion = Habitacion.objects.get(pk=habitacion_id)
+    except Habitacion.DoesNotExist:
+        return Response({'error': 'Habitación no encontrada.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Fechas
+    fecha_checkin = timezone.now()
+    fecha_checkout = fecha_checkin + timedelta(days=dias)
+
+    # Tipo y estado de reserva
+    tipo_reserva = TipoReserva.objects.get(nombre='Presencial')
+    estado_reserva = EstadoReserva.objects.get(nombre='Confirmada')
+
+    # Calcular descuento según total_visitas
+    if hasattr(usuario, 'total_visitas') and usuario.total_visitas >= 5:
+        descuento = float(habitacion.precio_actual) * int(dias) * 0.10  # 10% de descuento
+    else:
+        descuento = 0.00
+
+    # Validar y crear reserva usando el serializer
+    reserva_data = {
+        "usuario": usuario.pk,
+        "usuario_admin": usuario_admin.pk if usuario_admin else None,
+        "codigo_habitacion": habitacion.pk,
+        "id_tipo_reserva": tipo_reserva.pk,
+        "id_estado_reserva": estado_reserva.pk,
+        "fecha_checkin_programado": fecha_checkin,
+        "fecha_checkout_programado": fecha_checkout,
+        "numero_huespedes": numero_huespedes,
+        "precio_noche": habitacion.precio_actual,
+        "descuento": descuento,
+    }
+    serializer = ReservaSerializer(data=reserva_data)
+    if serializer.is_valid():
+        reserva = serializer.save()
+        reserva.check_in()
+        if hasattr(usuario, 'rol') and usuario.rol == 'HUESPED':
+            usuario.total_visitas = getattr(usuario, 'total_visitas', 0) + 1
+            usuario.save()
+        return Response({
+            "message": "Registro y check-in exitoso",
+            "usuario": UsuarioSerializer(usuario).data,
+            "reserva": ReservaSerializer(reserva).data
+        }, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def registrar_hospedaje_presencial_pendiente(request):
+    """
+    Registro de hospedaje presencial: crea usuario huésped si no existe,
+    asocia reserva a un administrador y deja la reserva en estado pendiente (sin check-in inmediato).
+    """
+    if request.user.rol not in ['ADMIN', 'RECEPCIONISTA', 'SUPERVISOR']:
+        return Response({"error": "Sin permisos para registrar hospedaje presencial"}, status=status.HTTP_403_FORBIDDEN)
+
+    dni = request.data.get('dni')
+    nombres = request.data.get('nombres')
+    apellidos = request.data.get('apellidos')
+    habitacion_id = request.data.get('habitacion_id')
+    numero_huespedes = request.data.get('numero_huespedes', 1)
+    dias = int(request.data.get('dias', 3))
+    dni_admin = request.data.get('dni_admin')  # opcional
+
+    # Buscar o crear usuario huésped
+    try:
+        usuario = Usuario.objects.get(dni=dni)
+    except Usuario.DoesNotExist:
+        data = {
+            'dni': dni,
+            'nombres': nombres,
+            'apellidos': apellidos,
+            'password': dni,
+            'rol': 'HUESPED'
+        }
+        serializer = UsuarioSerializer(data=data)
+        if serializer.is_valid():
+            usuario = serializer.save()
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Buscar usuario administrador
+    if dni_admin:
+        try:
+            usuario_admin = Usuario.objects.get(dni=dni_admin, rol='ADMIN')
+        except Usuario.DoesNotExist:
+            return Response({'error': 'Administrador no encontrado.'}, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        usuario_admin = request.user
+
+    # Buscar habitación
+    try:
+        habitacion = Habitacion.objects.get(pk=habitacion_id)
+    except Habitacion.DoesNotExist:
+        return Response({'error': 'Habitación no encontrada.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Fechas: usar las del request si existen, si no calcularlas
+    fecha_checkin = request.data.get('fecha_checkin_programado')
+    fecha_checkout = request.data.get('fecha_checkout_programado')
+    if not fecha_checkin or not fecha_checkout:
+        fecha_checkin = timezone.now()
+        fecha_checkout = fecha_checkin + timedelta(days=dias)
+
+    # Tipo y estado de reserva
+    tipo_reserva = TipoReserva.objects.get(nombre='Presencial')
+    estado_reserva = EstadoReserva.objects.get(nombre='Pendiente')
+
+    # Calcular descuento según total_visitas
+    if hasattr(usuario, 'total_visitas') and usuario.total_visitas >= 5:
+        descuento = float(habitacion.precio_actual) * int(dias) * 0.10  # 10% de descuento
+    else:
+        descuento = 0.00
+
+    # Validar y crear reserva usando el serializer
+    reserva_data = {
+        "usuario": usuario.pk,
+        "usuario_admin": usuario_admin.pk if usuario_admin else None,
+        "codigo_habitacion": habitacion.pk,
+        "id_tipo_reserva": tipo_reserva.pk,
+        "id_estado_reserva": estado_reserva.pk,
+        "fecha_checkin_programado": fecha_checkin,
+        "fecha_checkout_programado": fecha_checkout,
+        "numero_huespedes": numero_huespedes,
+        "precio_noche": habitacion.precio_actual,
+        "descuento": descuento,
+    }
+    serializer = ReservaSerializer(data=reserva_data)
+    if serializer.is_valid():
+        reserva = serializer.save()
+        # No se hace check_in ni se cambia el estado de la habitación
+        return Response({
+            "message": "Reserva presencial registrada en estado pendiente",
+            "usuario": UsuarioSerializer(usuario).data,
+            "reserva": ReservaSerializer(reserva).data
+        }, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

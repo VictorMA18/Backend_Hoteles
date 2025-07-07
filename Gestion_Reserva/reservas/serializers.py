@@ -5,11 +5,11 @@ from usuarios.models import Usuario
 class ReservaSerializer(serializers.ModelSerializer):
     usuario = serializers.PrimaryKeyRelatedField(queryset=Usuario.objects.all())
     usuario_admin = serializers.PrimaryKeyRelatedField(queryset=Usuario.objects.all(), required=False, allow_null=True)
-
+    
     total_noches = serializers.ReadOnlyField()
     subtotal = serializers.ReadOnlyField()
     total_pagar = serializers.ReadOnlyField()
-
+    descuento = serializers.ReadOnlyField()
     class Meta:
         model = Reserva
         fields = [

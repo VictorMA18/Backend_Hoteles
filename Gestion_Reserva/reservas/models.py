@@ -49,7 +49,6 @@ class Reserva(models.Model):
     # Información comercial
     numero_huespedes = models.IntegerField(default=1, validators=[MinValueValidator(1)])
     precio_noche = models.DecimalField(max_digits=10, decimal_places=2)
-    descuento = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     impuestos = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     
     # Campos calculados (se gestionarán a nivel de aplicación)
