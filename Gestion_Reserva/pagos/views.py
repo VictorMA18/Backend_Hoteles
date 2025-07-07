@@ -5,6 +5,7 @@ from django.conf import settings
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 from .models import CuentaCobrar
 from .services import crear_payment_intent
 
@@ -124,6 +125,9 @@ def handle_payment_succeeded_cuenta(payment_intent):
 def pagar_cuenta(request, cuenta_id):
     cuenta = get_object_or_404(CuentaCobrar, id_cuenta=cuenta_id)
 
+    if cuenta.estado != 'PENDIENTE': 
+        return HttpResponse("Esta cuenta ya ha sido pagada.", status=400)
+
     session = stripe.checkout.Session.create(
         payment_method_types=['card'],
         mode='payment',
@@ -147,3 +151,5 @@ def pagar_cuenta(request, cuenta_id):
     )
 
     return redirect(session.url, code=303)
+
+
