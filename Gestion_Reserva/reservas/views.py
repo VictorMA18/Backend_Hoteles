@@ -12,6 +12,7 @@ from django.utils import timezone
 from datetime import timedelta
 from habitaciones.models import Habitacion, EstadoHabitacion
 from .models import Reserva, HistorialReserva, TipoReserva, EstadoReserva
+from django.db.models import Q
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -358,27 +359,25 @@ def registrar_hospedaje_presencial_pendiente(request):
 @permission_classes([IsAuthenticated])
 def listar_reservas_confirmadas_ocupadas_limpieza(request):
     """
-    Lista reservas con estado 'Confirmada' o 'Finalizada' y habitación en estado 'Ocupada' o 'En limpieza'.
-    También incluye todas las reservas con estado 'Confirmada'.
+    Lista reservas con estado 'Confirmada' o 'Finalizada' y habitación en estado 'Ocupada' o 'Limpieza',
+    y además todas las reservas con estado 'Finalizada' (sin importar el estado de la habitación).
     Solo para ADMIN, RECEPCIONISTA o SUPERVISOR.
     """
     if request.user.rol not in ['ADMIN', 'RECEPCIONISTA', 'SUPERVISOR']:
         return Response({"error": "Sin permisos para ver reservas confirmadas"}, status=status.HTTP_403_FORBIDDEN)
 
-    # Obtener los objetos de estado
     estado_confirmada = EstadoReserva.objects.get(nombre='Confirmada')
     estado_finalizada = EstadoReserva.objects.get(nombre='Finalizada')
     estado_ocupada = EstadoHabitacion.objects.get(nombre='Ocupada')
     estado_limpieza = EstadoHabitacion.objects.get(nombre='Limpieza')
 
-    # Reservas confirmadas con habitación ocupada o en limpieza
     reservas = Reserva.objects.filter(
-        id_estado_reserva__in=[estado_confirmada, estado_finalizada],
-        codigo_habitacion__id_estado__in=[estado_ocupada, estado_limpieza]
-    ).order_by('-fecha_checkin_programado')
-
-    # Si quieres incluir TODAS las reservas confirmadas (sin importar estado de habitación), descomenta:
-    # reservas = Reserva.objects.filter(id_estado_reserva=estado_confirmada).order_by('-fecha_checkin_programado')
+        Q(
+            id_estado_reserva__in=[estado_confirmada, estado_finalizada],
+            codigo_habitacion__id_estado__in=[estado_ocupada, estado_limpieza]
+        ) |
+        Q(id_estado_reserva=estado_finalizada)
+    ).distinct().order_by('-fecha_checkin_programado')
 
     serializer = ReservaDetalleSerializer(reservas, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
