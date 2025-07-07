@@ -16,7 +16,7 @@ class ReservaSerializer(serializers.ModelSerializer):
             'id', 'codigo_habitacion', 'usuario', 'usuario_admin',
             'id_tipo_reserva', 'id_estado_reserva', 'fecha_checkin_programado',
             'fecha_checkout_programado', 'numero_huespedes', 'precio_noche',
-            'descuento', 'impuestos', 'observaciones',
+            'descuento', 'impuestos', 'observaciones', 'fecha_checkin_real', 'fecha_checkout_real',
             # Campos calculados
             'total_noches', 'subtotal', 'total_pagar'
         ]
@@ -60,6 +60,43 @@ class ReservaSerializer(serializers.ModelSerializer):
                     "Ya tienes una reserva para esta habitación en el rango de fechas seleccionado."
                 )
         return data
+
+class ReservaDetalleSerializer(serializers.ModelSerializer):
+    usuario_dni = serializers.CharField(source='usuario.dni', read_only=True)
+    usuario_nombres = serializers.CharField(source='usuario.nombres', read_only=True)
+    usuario_apellidos = serializers.CharField(source='usuario.apellidos', read_only=True)
+    habitacion_numero = serializers.CharField(source='codigo_habitacion.numero_habitacion', read_only=True)
+    habitacion_tipo = serializers.CharField(source='codigo_habitacion.id_tipo.nombre', read_only=True)
+    habitacion_estado = serializers.CharField(source='codigo_habitacion.id_estado.nombre', read_only=True)
+
+    class Meta:
+        model = Reserva
+        fields = [
+            'id',
+            'codigo_habitacion',
+            'habitacion_numero',
+            'habitacion_tipo',
+            'habitacion_estado',
+            'usuario',
+            'usuario_dni',
+            'usuario_nombres',
+            'usuario_apellidos',
+            'usuario_admin',
+            'id_tipo_reserva',
+            'id_estado_reserva',
+            'fecha_checkin_programado',
+            'fecha_checkout_programado',
+            'numero_huespedes',
+            'precio_noche',
+            'descuento',
+            'impuestos',
+            'observaciones',
+            'fecha_checkin_real',
+            'fecha_checkout_real',
+            'total_noches',
+            'subtotal',
+            'total_pagar'
+        ]
 
 class HistorialReservaSerializer(serializers.ModelSerializer):
     reserva = ReservaSerializer(read_only=True)

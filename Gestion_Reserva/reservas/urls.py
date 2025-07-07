@@ -9,7 +9,8 @@ from .views import (
     finalizar_limpieza_habitacion,
     historial_reservas_usuario,
     registrar_hospedaje_presencial,
-    registrar_hospedaje_presencial_pendiente
+    registrar_hospedaje_presencial_pendiente,
+    listar_reservas_confirmadas_ocupadas_limpieza
 )
 
 urlpatterns = [
@@ -25,6 +26,7 @@ urlpatterns = [
     path('<int:reserva_id>/finalizar-limpieza/', finalizar_limpieza_habitacion, name='finalizar_limpieza'),
     path('hospedaje-presencial/', registrar_hospedaje_presencial, name='registrar_hospedaje_presencial'),
     path('hospedaje-presencial-pendiente/', registrar_hospedaje_presencial_pendiente, name='hospedaje_presencial_pendiente'),
+    path('confirmadas-ocupadas-limpieza/', listar_reservas_confirmadas_ocupadas_limpieza, name='reservas_confirmadas_ocupadas_limpieza'),
 
     # Historial de reservas de un usuario específico
     path('historial/<str:dni>/', historial_reservas_usuario, name='historial_reservas_usuario'),

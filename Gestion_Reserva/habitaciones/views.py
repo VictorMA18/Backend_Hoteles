@@ -122,3 +122,31 @@ def buscar_disponibilidad(request):
 
     serializer = HabitacionSerializer(habitaciones_disponibles, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def finalizar_limpieza(request, codigo_habitacion):
+    if request.user.rol not in ['ADMIN', 'RECEPCIONISTA', 'SUPERVISOR']:
+        return Response({"error": "Sin permisos para finalizar limpieza"}, status=403)
+    try:
+        habitacion = Habitacion.objects.get(codigo=codigo_habitacion)
+        estado_limpieza = EstadoHabitacion.objects.get(nombre='Limpieza')
+        estado_disponible = EstadoHabitacion.objects.get(nombre='Disponible')
+        # Verificar que la habitación esté en estado "Limpieza"
+        if habitacion.id_estado != estado_limpieza:
+            return Response(
+                {"error": "La habitación no está en estado de Limpieza."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        habitacion.id_estado = estado_disponible
+        habitacion.save()
+        return Response({
+            "message": "Limpieza finalizada, habitación disponible",
+            "habitacion": {
+                "codigo": habitacion.codigo,
+                "numero": habitacion.numero_habitacion,
+                "estado": habitacion.id_estado.nombre
+            }
+        }, status=200)
+    except Habitacion.DoesNotExist:
+        return Response({"error": "Habitación no encontrada"}, status=404)
