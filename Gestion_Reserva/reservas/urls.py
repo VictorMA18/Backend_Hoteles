@@ -10,7 +10,8 @@ from .views import (
     historial_reservas_usuario,
     registrar_hospedaje_presencial,
     registrar_hospedaje_presencial_pendiente,
-    listar_reservas_confirmadas_ocupadas_limpieza
+    listar_reservas_confirmadas_ocupadas_limpieza,
+    listar_todas_las_reservas
 )
 
 urlpatterns = [
@@ -27,6 +28,7 @@ urlpatterns = [
     path('hospedaje-presencial/', registrar_hospedaje_presencial, name='registrar_hospedaje_presencial'),
     path('hospedaje-presencial-pendiente/', registrar_hospedaje_presencial_pendiente, name='hospedaje_presencial_pendiente'),
     path('confirmadas-ocupadas-limpieza/', listar_reservas_confirmadas_ocupadas_limpieza, name='reservas_confirmadas_ocupadas_limpieza'),
+    path('todas/', listar_todas_las_reservas, name='listar_todas_las_reservas'),
 
     # Historial de reservas de un usuario específico
     path('historial/<str:dni>/', historial_reservas_usuario, name='historial_reservas_usuario'),

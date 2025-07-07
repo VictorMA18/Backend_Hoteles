@@ -89,22 +89,28 @@ class Reserva(models.Model):
         return f"Reserva #{self.id}"
 
     def cancelar(self, motivo=None):
-        """Cancela la reserva y libera la habitación"""
         from reservas.models import EstadoReserva
         from habitaciones.models import EstadoHabitacion
         from django.utils import timezone
-        
+
+        if self.id_estado_reserva.pk == 1:  # Pendiente
+            pass  # Se puede cancelar
+        elif self.id_estado_reserva.pk == 2 and self.codigo_habitacion.id_estado.pk == 3:  # Confirmada y Reservada
+            pass  # Se puede cancelar
+        else:
+            raise ValueError("Solo se pueden cancelar reservas pendientes o confirmadas con habitación reservada.")
+
         estado_cancelada = EstadoReserva.objects.get(pk=3)  # Cancelada
         self.id_estado_reserva = estado_cancelada
         if motivo:
             self.motivo_cancelacion = motivo
-        
+
         # Si la habitación estaba reservada, la marcamos como disponible
         if self.codigo_habitacion.id_estado.pk == 3:  # Reservada
             estado_disponible = EstadoHabitacion.objects.get(pk=1)  # Disponible
             self.codigo_habitacion.id_estado = estado_disponible
             self.codigo_habitacion.save()
-        
+
         self.save()
 
     def check_in(self):

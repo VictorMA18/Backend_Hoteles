@@ -381,3 +381,13 @@ def listar_reservas_confirmadas_ocupadas_limpieza(request):
 
     serializer = ReservaDetalleSerializer(reservas, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def listar_todas_las_reservas(request):
+    """
+    Lista todas las reservas del sistema.
+    """
+    reservas = Reserva.objects.all().order_by('-fecha_checkin_programado')
+    serializer = ReservaDetalleSerializer(reservas, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
