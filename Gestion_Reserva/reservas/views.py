@@ -13,23 +13,49 @@ from datetime import timedelta
 from habitaciones.models import Habitacion, EstadoHabitacion
 from .models import Reserva, HistorialReserva, TipoReserva, EstadoReserva
 from django.db.models import Q
+from pagos.models import CuentaCobrar
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def crear_reserva(request):
     data = request.data.copy()
-    # Asigna el usuario (huésped) autenticado
-    data['usuario'] = request.user.pk
+    data['usuario'] = request.user.pk  # Asignar usuario autenticado
+
     serializer = ReservaSerializer(data=data)
     if serializer.is_valid():
         reserva = serializer.save()
-        # Guardar en el historial del huésped (si el modelo existe)
+
+        # Crear historial (si aplica)
         try:
             HistorialReserva.objects.create(huesped=reserva.usuario, reserva=reserva)
-        except:
-            pass  # Por ahora ignoramos si el historial falla
-        return Response(ReservaSerializer(reserva).data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            print(f"[!] Error al guardar historial: {e}")  # Log o ignorar
+
+        # Crear cuenta por cobrar
+        try:
+            fecha_vencimiento = timezone.now().date() + timedelta(days=2)
+            cuenta = CuentaCobrar.objects.create(
+                codigo_reserva=reserva,
+                dni_huesped=reserva.usuario,  # ← asegúrate que exista `huesped`
+                monto_total=reserva.total_pagar,
+                fecha_vencimiento=fecha_vencimiento,
+                estado='PENDIENTE'
+            )
+        except Exception as e:
+            return Response(
+                {"error": f"No se pudo crear cuenta por cobrar: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+        # Todo correcto, devolver datos
+        return Response({
+            "reserva": ReservaSerializer(reserva).data,
+            "cuenta_id": str(cuenta.id_cuenta)
+        }, status=status.HTTP_201_CREATED)
+
+    # Datos inválidos
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
