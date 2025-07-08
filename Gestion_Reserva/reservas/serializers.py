@@ -72,7 +72,9 @@ class ReservaSerializer(serializers.ModelSerializer):
         total_noches = (fecha_checkout.date() - fecha_checkin.date()).days
         total_noches = max(total_noches, 1)
         subtotal = precio_noche * total_noches
-        if hasattr(usuario, 'total_visitas') and usuario.total_visitas >= 5:
+        if hasattr(usuario, 'total_visitas') and usuario.total_visitas >= 10:
+            descuento_aplicado = subtotal * Decimal('0.15')    
+        elif hasattr(usuario, 'total_visitas') and usuario.total_visitas >= 5:
             descuento_aplicado = subtotal * Decimal('0.10')
         else:
             descuento_aplicado = Decimal('0.00')

@@ -12,7 +12,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
         model = Usuario
         fields = [
             'dni', 'id_tipo_doc', 'nombres', 'apellidos', 'email', 'celular', 'rol', 'password',
-            'is_active', 'is_staff', 'change_password', 'created_at', 'updated_at'
+            'is_active', 'is_staff', 'change_password', 'created_at', 'updated_at', 'total_visitas'
         ]
         extra_kwargs = {
             'password': {'write_only': True}
