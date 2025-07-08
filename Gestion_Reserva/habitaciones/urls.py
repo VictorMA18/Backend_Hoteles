@@ -7,6 +7,7 @@ from .views import (
     tipos_habitacion,
     habitaciones_dashboard_sse
 )
+from habitaciones import views
 
 urlpatterns = [
     # Gestión de habitaciones
@@ -18,4 +19,5 @@ urlpatterns = [
     path('estados/', estados_habitacion, name='estados_habitacion'),
     path('tipos/', tipos_habitacion, name='tipos_habitacion'),
     path('sse/habitaciones-dashboard/', habitaciones_dashboard_sse, name='habitaciones_dashboard_sse'),
+    path('listar/', listar_habitaciones, name='listar_habitaciones'),
 ]
