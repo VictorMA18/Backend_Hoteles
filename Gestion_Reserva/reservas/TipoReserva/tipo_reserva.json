@@ -1,0 +1,20 @@
+[
+  {
+    "model": "reservas.tiporeserva",
+    "pk": 1,
+    "fields": {
+      "nombre": "Presencial",
+      "descripcion": "Reserva realizada en el hotel",
+      "requiere_presencia": true
+    }
+  },
+  {
+    "model": "reservas.tiporeserva",
+    "pk": 2,
+    "fields": {
+      "nombre": "Online",
+      "descripcion": "Reserva realizada por internet",
+      "requiere_presencia": false
+    }
+  }
+]

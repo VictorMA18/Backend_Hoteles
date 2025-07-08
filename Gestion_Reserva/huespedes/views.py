@@ -1,4 +1,4 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import HuespedSerializer
@@ -6,6 +6,7 @@ from .models import Huesped
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
 
 @api_view(['POST'])
 def register_huesped(request):
@@ -42,7 +43,7 @@ def login_huesped(request):
         return Response({'detail': 'Credenciales inválidas.'}, status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['GET'])
+@authentication_classes([TokenAuthentication]) 
+@permission_classes([IsAuthenticated])
 def get_huesped(request):
-    if not request.user.is_authenticated:
-        return Response({'detail': 'No autenticado.'}, status=status.HTTP_401_UNAUTHORIZED)
     return Response(HuespedSerializer(request.user).data, status=status.HTTP_200_OK)
