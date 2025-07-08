@@ -10,6 +10,7 @@ class ReservaSerializer(serializers.ModelSerializer):
     subtotal = serializers.ReadOnlyField()
     total_pagar = serializers.ReadOnlyField()
     descuento = serializers.ReadOnlyField()
+    pago = serializers.CharField()
     class Meta:
         model = Reserva
         fields = [
@@ -18,7 +19,7 @@ class ReservaSerializer(serializers.ModelSerializer):
             'fecha_checkout_programado', 'numero_huespedes', 'precio_noche',
             'descuento', 'impuestos', 'observaciones', 'fecha_checkin_real', 'fecha_checkout_real',
             # Campos calculados
-            'total_noches', 'subtotal', 'total_pagar'
+            'total_noches', 'subtotal', 'total_pagar', 'pago'
         ]
 
     def validate(self, data):
@@ -61,13 +62,32 @@ class ReservaSerializer(serializers.ModelSerializer):
                 )
         return data
 
+    def create(self, validated_data):
+        # Calcular descuento_aplicado según total_visitas del usuario
+        from decimal import Decimal
+        usuario = validated_data['usuario']
+        precio_noche = validated_data['precio_noche']
+        fecha_checkin = validated_data['fecha_checkin_programado']
+        fecha_checkout = validated_data['fecha_checkout_programado']
+        total_noches = (fecha_checkout.date() - fecha_checkin.date()).days
+        total_noches = max(total_noches, 1)
+        subtotal = precio_noche * total_noches
+        if hasattr(usuario, 'total_visitas') and usuario.total_visitas >= 5:
+            descuento_aplicado = subtotal * Decimal('0.10')
+        else:
+            descuento_aplicado = Decimal('0.00')
+        validated_data['descuento_aplicado'] = descuento_aplicado
+        return super().create(validated_data)
+
 class ReservaDetalleSerializer(serializers.ModelSerializer):
     usuario_dni = serializers.CharField(source='usuario.dni', read_only=True)
     usuario_nombres = serializers.CharField(source='usuario.nombres', read_only=True)
     usuario_apellidos = serializers.CharField(source='usuario.apellidos', read_only=True)
+    total_visitas = serializers.CharField(source='usuario.total_visitas', read_only=True)
     habitacion_numero = serializers.CharField(source='codigo_habitacion.numero_habitacion', read_only=True)
     habitacion_tipo = serializers.CharField(source='codigo_habitacion.id_tipo.nombre', read_only=True)
     habitacion_estado = serializers.CharField(source='codigo_habitacion.id_estado.nombre', read_only=True)
+    pago = serializers.CharField()
 
     class Meta:
         model = Reserva
@@ -94,8 +114,10 @@ class ReservaDetalleSerializer(serializers.ModelSerializer):
             'fecha_checkin_real',
             'fecha_checkout_real',
             'total_noches',
+            'total_visitas',
             'subtotal',
-            'total_pagar'
+            'total_pagar',
+            'pago'
         ]
 
 class HistorialReservaSerializer(serializers.ModelSerializer):

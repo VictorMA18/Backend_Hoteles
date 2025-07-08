@@ -187,7 +187,8 @@ def registrar_hospedaje_presencial(request):
     habitacion_id = request.data.get('habitacion_id')
     numero_huespedes = request.data.get('numero_huespedes', 1)
     dias = int(request.data.get('dias', 3))
-    dni_admin = request.data.get('dni_admin')  # opcional
+    dni_admin = request.data.get('dni_admin')
+    pago = request.data.get('pago')  # nuevo campo de pago
 
     # Buscar o crear usuario huésped
     try:
@@ -229,12 +230,6 @@ def registrar_hospedaje_presencial(request):
     tipo_reserva = TipoReserva.objects.get(nombre='Presencial')
     estado_reserva = EstadoReserva.objects.get(nombre='Confirmada')
 
-    # Calcular descuento según total_visitas
-    if hasattr(usuario, 'total_visitas') and usuario.total_visitas >= 5:
-        descuento = float(habitacion.precio_actual) * int(dias) * 0.10  # 10% de descuento
-    else:
-        descuento = 0.00
-
     # Validar y crear reserva usando el serializer
     reserva_data = {
         "usuario": usuario.pk,
@@ -246,7 +241,8 @@ def registrar_hospedaje_presencial(request):
         "fecha_checkout_programado": fecha_checkout,
         "numero_huespedes": numero_huespedes,
         "precio_noche": habitacion.precio_actual,
-        "descuento": descuento,
+        "pago": pago,  # nuevo campo de pago
+        # 'descuento' eliminado, ahora lo calcula el serializer
     }
     serializer = ReservaSerializer(data=reserva_data)
     if serializer.is_valid():
@@ -279,7 +275,8 @@ def registrar_hospedaje_presencial_pendiente(request):
     habitacion_id = request.data.get('habitacion_id')
     numero_huespedes = request.data.get('numero_huespedes', 1)
     dias = int(request.data.get('dias', 3))
-    dni_admin = request.data.get('dni_admin')  # opcional
+    dni_admin = request.data.get('dni_admin')
+    pago = request.data.get('pago')  
 
     # Buscar o crear usuario huésped
     try:
@@ -324,12 +321,6 @@ def registrar_hospedaje_presencial_pendiente(request):
     tipo_reserva = TipoReserva.objects.get(nombre='Presencial')
     estado_reserva = EstadoReserva.objects.get(nombre='Pendiente')
 
-    # Calcular descuento según total_visitas
-    if hasattr(usuario, 'total_visitas') and usuario.total_visitas >= 5:
-        descuento = float(habitacion.precio_actual) * int(dias) * 0.10  # 10% de descuento
-    else:
-        descuento = 0.00
-
     # Validar y crear reserva usando el serializer
     reserva_data = {
         "usuario": usuario.pk,
@@ -341,7 +332,8 @@ def registrar_hospedaje_presencial_pendiente(request):
         "fecha_checkout_programado": fecha_checkout,
         "numero_huespedes": numero_huespedes,
         "precio_noche": habitacion.precio_actual,
-        "descuento": descuento,
+        "pago": pago,  # nuevo campo de pago
+        # 'descuento' eliminado, ahora lo calcula el serializer
     }
     serializer = ReservaSerializer(data=reserva_data)
     if serializer.is_valid():

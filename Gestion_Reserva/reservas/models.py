@@ -50,15 +50,22 @@ class Reserva(models.Model):
     numero_huespedes = models.IntegerField(default=1, validators=[MinValueValidator(1)])
     precio_noche = models.DecimalField(max_digits=10, decimal_places=2)
     impuestos = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    
+    descuento_aplicado = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Nuevo campo
+    TIPO_PAGO_CHOICES = [
+        ('efectivo', 'Efectivo'),
+        ('yape', 'Yape'),
+        ('plin', 'Plin'),
+        ('tarjeta', 'Tarjeta'),
+        ('transferencia', 'Transferencia'),
+    ]
+    pago = models.CharField(max_length=20, choices=TIPO_PAGO_CHOICES, default='efectivo')
+
     # Campos calculados (se gestionarán a nivel de aplicación)
 
     @property
     def descuento(self):
-        # Ejemplo: 10% de descuento si el huésped tiene 5 o más visitas
-        if hasattr(self.usuario, 'total_visitas') and self.usuario.total_visitas >= 5:
-            return self.subtotal * Decimal('0.10')
-        return Decimal('0.00')
+        # Ahora retorna el descuento fijo guardado
+        return self.descuento_aplicado
     
     @property
     def total_noches(self):
@@ -71,7 +78,7 @@ class Reserva(models.Model):
 
     @property
     def total_pagar(self):
-        return self.subtotal - Decimal(self.descuento) + Decimal(self.impuestos)
+        return self.subtotal - Decimal(self.descuento_aplicado) + Decimal(self.impuestos)
     
     # Información adicional
     observaciones = models.TextField(blank=True, null=True)
